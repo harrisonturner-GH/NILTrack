@@ -1,0 +1,5 @@
+requests
+pandas
+typer
+rich
+streamlit
