@@ -24,14 +24,23 @@ jobs:
       - name: Full league sync
         run: |
           python sync_all_boxscores.py --season "2025-26" --sleep 0.1
-
+          
+      - name: Sanity check DB
+        run: |
+          python - <<'PY'
+          import sqlite3
+          con = sqlite3.connect("cbb_tracker.sqlite")
+          print("Teams:", con.execute("SELECT COUNT(*) FROM teams").fetchone()[0])
+          print("Games (post, 2026):", con.execute("SELECT COUNT(*) FROM games WHERE season_year=2026 AND lower(status)='post'").fetchone()[0])
+          print("Player lines:", con.execute("SELECT COUNT(*) FROM player_game_stats").fetchone()[0])
+          PY
       - name: Generate report
         run: python generate_report.py
-
+  
       - name: Upload page artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+           path: site
 
   deploy:
     needs: build
